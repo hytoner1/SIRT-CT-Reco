@@ -33,23 +33,24 @@ colormap(gca,hot), colorbar;
 v = zeros(imS);
 
     % Introduce weight matrices C and R (Column and Row sums of W_)
-R = sparse( diag( sum(W_, 2).^-1 ) );
+R = (10+sum(W_, 2)).^-1 ;
     R(R>0.01) = 0;
     R = R./0.01;
-C = sparse( diag( sum(W_, 1).^-1 ) );
+C = sum(W_, 1).^-1 ;
     C(isinf(C)) = 0;
     C = C./max(C(:));
 %%
 % for i = 1:100
     % Crete FWD projection p_ as approximation of p
-p_ = reshape( full(W_) * v(:), size(p,1), size(p,2));
+p_ = reshape( W_ * v(:), size(p,1), size(p,2));
     % Compute the difference between the two
 p_diff = p - p_;
+    p_diff = p_diff./max(p_diff);
 
     % Weighted projection difference
-w_p_diff = reshape( R * p_diff(:), size(p));
+w_p_diff = reshape( R .* p_diff(:), size(p));
 
-w_bp = reshape( C * W_' * w_p_diff(:), imS, imS );
+w_bp = reshape( C' .* (W_' * w_p_diff(:)), imS, imS );
     % Add the weighted difference to previous iteration
 v = v + w_bp;
 
@@ -57,6 +58,7 @@ figure(4); clf;
 imagesc(v);
 title(i);
 drawnow;
+colorbar;
 % end
 
     %% TEST_1
