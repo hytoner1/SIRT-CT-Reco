@@ -13,7 +13,7 @@ iptsetpref('ImshowAxesVisible','on')
     % Image size (square)
 imS = 100;
     % Image itself
-% im = ones(imS);
+im = zeros(imS);
     im(25:75, 25:75) = 1;
     % Radon angles
 theta = 0:180;
@@ -33,15 +33,9 @@ colormap(gca,hot), colorbar;
 v = zeros(imS);
 
     % Introduce weight matrices C and R (Column and Row sums of W_)
-% R = (sum(W_, 2)).^-1 ;
-%     R(R>0.01) = 0;
-%     R = R./0.01;
-R = (sum(W_, 2));
-    R = R./max(R(:));
+R = sum(W_, 2).^-1 ;
 C = sum(W_, 1).^-1 ;
-%     C(isinf(C)) = 0;
-    C = C./max(C(:));
-% C = ones(1,10000);
+
 %%
 % for i = 1:100
     % Crete FWD projection p_ as approximation of p
@@ -120,10 +114,12 @@ for i = 1 : size(map,1)
     end
 end
 
-p2 = reshape( full(W_) * im(:), size(map,1), size(map,2));
+W_ = W_(sum(W_,2)~=0, :);
 
-figure(3); clf; 
-imshow(p2,[],'Xdata',theta,'Ydata',p_pos,'InitialMagnification','fit')
-xlabel('\theta (degrees)')
-ylabel('x''')
-colormap(gca,hot), colorbar;
+% p2 = reshape( full(W_) * im(:), size(map,1), size(map,2));
+% 
+% figure(3); clf; 
+% imshow(p2,[],'Xdata',theta,'Ydata',p_pos,'InitialMagnification','fit')
+% xlabel('\theta (degrees)')
+% ylabel('x''')
+% colormap(gca,hot), colorbar;
