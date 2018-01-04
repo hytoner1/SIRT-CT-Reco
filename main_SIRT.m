@@ -33,26 +33,32 @@ colormap(gca,hot), colorbar;
 v = zeros(imS);
 
     % Introduce weight matrices C and R (Column and Row sums of W_)
-R = (10+sum(W_, 2)).^-1 ;
-    R(R>0.01) = 0;
-    R = R./0.01;
+% R = (sum(W_, 2)).^-1 ;
+%     R(R>0.01) = 0;
+%     R = R./0.01;
+R = (sum(W_, 2));
+    R = R./max(R(:));
 C = sum(W_, 1).^-1 ;
-    C(isinf(C)) = 0;
+%     C(isinf(C)) = 0;
     C = C./max(C(:));
+% C = ones(1,10000);
 %%
 % for i = 1:100
     % Crete FWD projection p_ as approximation of p
 p_ = reshape( W_ * v(:), size(p,1), size(p,2));
     % Compute the difference between the two
-p_diff = p - p_;
-    p_diff = p_diff./max(p_diff);
+p_diff = p2 - p_;
+%     p_diff = p_diff./max(p_diff);
 
-    % Weighted projection difference
+    % Weighted (FWD) projection difference
 w_p_diff = reshape( R .* p_diff(:), size(p));
 
 w_bp = reshape( C' .* (W_' * w_p_diff(:)), imS, imS );
     % Add the weighted difference to previous iteration
-v = v + w_bp;
+w_bp_max = find(abs(w_bp(:)) == max(abs(w_bp(:))));
+
+v = v + w_bp;% ./ w_bp(w_bp_max) .* sign(w_bp(w_bp_max));
+    v = v./max(v(:));
 
 figure(4); clf;
 imagesc(v);
